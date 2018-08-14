@@ -6,11 +6,10 @@
     android:layout_height="match_parent"
     android:background="#FFF"
     tools:context="prof.mo.ed.popularmoviesstageone.MainActivity">
-
     <FrameLayout
         android:background="#000"
         android:id="@+id/panel_one"
-        android:name="com.example.prof_mohamedatef.tabletfragments.MainFragment"
+        android:name="prof.mo.ed.popularmoviesstageone.MainFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.4"></FrameLayout>

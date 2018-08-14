@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFF"
-    tools:context="prof.mo.ed.popularmoviesstageone.MainActivity">
-
-    <FrameLayout
-        android:background="#000"
-        android:id="@+id/panel_one"
-        android:name="com.example.prof_mohamedatef.tabletfragments.MainFragment"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.4"></FrameLayout>
-    <FrameLayout
-        android:id="@+id/panel_two"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.6"></FrameLayout>
-</LinearLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/panel_one"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#000"
+android:name="prof.mo.ed.popularmoviesstageone.MainFragment"
+tools:ignore="MergeRootFrame"/>

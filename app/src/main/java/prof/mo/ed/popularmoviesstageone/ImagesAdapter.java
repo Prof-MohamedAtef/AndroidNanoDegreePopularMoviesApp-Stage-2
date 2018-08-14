@@ -34,11 +34,11 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
         RecyclerView.ViewHolder viewHolder=new ViewHOlder(view);
         return (ViewHOlder) viewHolder;
     }
-    MovieEntity feedItem;
+
 
     @Override
     public void onBindViewHolder(ViewHOlder customViewholder, final int i) {
-        feedItem=feedItemList.get(i);
+        final MovieEntity feedItem=feedItemList.get(i);
         Picasso.with(mContext).load(feedItem.getPOSTER_PATH_STRING()).into(customViewholder.one_img);
         customViewholder.one_text.setText(feedItem.getTITLE_STRING());
         customViewholder.one_img.setOnClickListener(new View.OnClickListener() {

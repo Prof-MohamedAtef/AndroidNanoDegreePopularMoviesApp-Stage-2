@@ -1,6 +1,7 @@
 package prof.mo.ed.popularmoviesstageone;
 
 import android.app.Fragment;
+import android.arch.lifecycle.viewmodel.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -81,6 +82,7 @@ public class MainFragment extends Fragment {
         }
     }
 
+    String apiKey;
     String order;
     // constant variables for any image
     final String IMAGES_BASE_Url = "http://image.tmdb.org";
@@ -90,14 +92,14 @@ public class MainFragment extends Fragment {
     // EACH INDIVIDUAL IMAGE LINK
     final String Batman_Image = "/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg";
     final String IMAGE_combine = IMAGES_BASE_Url + IMAGE_SIZE + Batman_Image;
-    final String now = "http://api.themoviedb.org/3/movie/popular?api_key=868bebbf76a3831f11b3985c703cf959";
-    final String Start = "/3/movie/popular?api_key=868bebbf76a3831f11b3985c703cf959";
+    final String now = "http://api.themoviedb.org/3/movie/popular?api_key="+apiKey;
+    final String Start = "/3/movie/popular?api_key="+apiKey;
     // Json link containing Poster_path, Overview, Videos Id, Release_Date, popularity, Titles,
     //BASE URL
     final String JSON_BASE_URL_START = "http://api.themoviedb.org";
     //START URL
     final String DIR_MOIVE_START = "/3/movie/popular?";
-    final String API_KEY_START = "api_key=868bebbf76a3831f11b3985c703cf959";
+    final String API_KEY_START = "api_key="+apiKey;
     final String VIDEO_COMBINE_START = DIR_MOIVE_START + API_KEY_START;
     //SORTING URLS
 
@@ -105,7 +107,7 @@ public class MainFragment extends Fragment {
     final String SORT_BY = "sort_by=";
     final String POPULARITY_DESC = "popularity.desc";
     final String VOTE_AVERAGE = "vote_average.desc";
-    final String API_KEY = "&api_key=868bebbf76a3831f11b3985c703cf959";
+    final String API_KEY = "&api_key="+apiKey;
     //
     final String VIDEO_COMBINE_POPULARITY = DIR_MOVIEW_TYPE + SORT_BY + POPULARITY_DESC + API_KEY;
 
@@ -122,6 +124,7 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
         // resource for my overflow icon menu
         // http://stackoverflow.com/questions/21544501/overflow-icon-in-action-bar-invisible
+        apiKey=BuildConfig.ApiKey;
         try {
             ViewConfiguration config = ViewConfiguration.get(getActivity());
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -156,13 +159,13 @@ public class MainFragment extends Fragment {
                 getActivity().setTitle("Popular Movies");
                 order = "popular";
                 Fetch_Movies_data FetchRating = new Fetch_Movies_data();
-                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key=868bebbf76a3831f11b3985c703cf959");
+                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 break;
             case 1:
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
                 Fetch_Movies_data FetchRating2 = new Fetch_Movies_data();
-                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key=868bebbf76a3831f11b3985c703cf959");
+                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 break;
         }
         Log.v("MainFragment", Integer.toString(Util.pos));
@@ -184,14 +187,14 @@ public class MainFragment extends Fragment {
                 Util.type = 0;
                 Util.pos = 0;
                 Fetch_Movies_data FetchRating = new Fetch_Movies_data();
-                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key=868bebbf76a3831f11b3985c703cf959");
+                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 break;
             case R.id.highest_rated:
                 Util.pos = 0;
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
                 Fetch_Movies_data FetchRating2 = new Fetch_Movies_data();
-                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key=868bebbf76a3831f11b3985c703cf959");
+                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 Util.type = 1;
                 break;
         }
