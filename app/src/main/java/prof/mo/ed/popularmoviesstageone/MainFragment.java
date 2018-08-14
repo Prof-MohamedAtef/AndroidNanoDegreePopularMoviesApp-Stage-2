@@ -1,8 +1,9 @@
 package prof.mo.ed.popularmoviesstageone;
 
 import android.app.Fragment;
-import android.arch.lifecycle.viewmodel.*;
-import android.os.AsyncTask;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,27 +16,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import android.widget.Toast;
 import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * Created by Prof-Mohamed Atef on 8/7/2018.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskCompleted{
 
     public MainFragment() {
 
     }
+
+    @Override
+    public void onTaskCompleted(ArrayList<MovieEntity> result) {
+        if (result != null) {
+            mAdapter = null;
+            list = result;
+            mAdapter = new ImagesAdapter(getActivity(), result);
+            recyclerView.setAdapter(mAdapter);
+            GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+            Log.v("MainFragment", Integer.toString(Util.pos));
+            layoutManager.scrollToPosition(Util.pos);
+        }
+    }
+
 
     public interface MovieDataListener {
         void onMovieFragmentSelected(MovieEntity movieEntity);
@@ -44,27 +50,6 @@ public class MainFragment extends Fragment {
     public ImagesAdapter mAdapter;
 
     ArrayList<MovieEntity> list = new ArrayList<MovieEntity>();
-
-
-    public String main_List = "results";
-
-
-    public String POSTER_PATH = "poster_path";
-    public String VIDEO_ID = "id";
-    public String TITLE = "title";
-    public String OVERVIEW = "overview";
-    public String RELEASE_DATE = "release_date";
-    public String POPULARITY = "popularity";
-    public String VOTE_AVERAGE_ = "vote_average";
-
-
-    public String POSTER_PATH_STRING;
-    public String VIDEO_ID_STRING;
-    public String TITLE_STRING;
-    public String OVERVIEW_STRING;
-    public String RELEASE_DATE_STRING;
-    public String POPULARITY_STRING;
-    public String VOTE_AVERAGE_STRING;
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -113,9 +98,6 @@ public class MainFragment extends Fragment {
 
     final String VIDEO_COMBINE_VOTE_AVERAGE = DIR_MOVIEW_TYPE + SORT_BY + VOTE_AVERAGE + API_KEY;
 
-    public JSONObject MoviesJson;
-    public JSONArray moviesDataArray;
-    public JSONObject oneMovieData;
     RecyclerView recyclerView;
 
     @Override
@@ -154,23 +136,48 @@ public class MainFragment extends Fragment {
             Util.pos = Integer.parseInt(savedInstanceState.getString("position"));
         }
 
-        switch (Util.type) {
+        checkConnection();
+            switch (Util.type) {
             case 0:
                 getActivity().setTitle("Popular Movies");
                 order = "popular";
-                Fetch_Movies_data FetchRating = new Fetch_Movies_data();
-                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                if (isConnected()) {
+                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
+                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                }else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case 1:
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
-                Fetch_Movies_data FetchRating2 = new Fetch_Movies_data();
-                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                if (isConnected()) {
+                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
+                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                }else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
         Log.v("MainFragment", Integer.toString(Util.pos));
         return rootView;
     }
+
+    boolean isInternetConnected;
+
+    private boolean checkConnection() {
+        return isInternetConnected=isConnected();
+    }
+
+    public boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE); //NetworkApplication.getInstance().getApplicationContext()/
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork!=null){
+            return isInternetConnected= activeNetwork.isConnected();
+        }else
+            return isInternetConnected=false;
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -186,15 +193,24 @@ public class MainFragment extends Fragment {
                 order = "popular";
                 Util.type = 0;
                 Util.pos = 0;
-                Fetch_Movies_data FetchRating = new Fetch_Movies_data();
-                FetchRating.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                if (isConnected()) {
+                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
+                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                }else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             case R.id.highest_rated:
                 Util.pos = 0;
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
-                Fetch_Movies_data FetchRating2 = new Fetch_Movies_data();
-                FetchRating2.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                if (isConnected()) {
+                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
+                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                }else {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
+                }
                 Util.type = 1;
                 break;
         }
@@ -208,115 +224,5 @@ public class MainFragment extends Fragment {
 
         Util.pos = layoutManager.findFirstVisibleItemPosition();
         Log.v("MainFragment", Integer.toString(Util.pos));
-    }
-
-    public class Fetch_Movies_data extends AsyncTask<String, Void, ArrayList<MovieEntity>> {
-
-        private final String LOG_TAG = Fetch_Movies_data.class.getSimpleName();
-
-        private ArrayList<MovieEntity> getMovieDataFromJson(String MoviesJsonStr)
-                throws JSONException {
-
-            MoviesJson = new JSONObject(MoviesJsonStr);
-            moviesDataArray = MoviesJson.getJSONArray(main_List);
-
-            list.clear();
-            for (int i = 0; i < moviesDataArray.length(); i++) {
-
-                // Get the JSON object representing a movie per each loop
-                oneMovieData = moviesDataArray.getJSONObject(i);
-
-                POSTER_PATH_STRING = oneMovieData.getString(POSTER_PATH);
-                VIDEO_ID_STRING = oneMovieData.getString(VIDEO_ID);
-                TITLE_STRING = oneMovieData.getString(TITLE);
-                OVERVIEW_STRING = oneMovieData.getString(OVERVIEW);
-                RELEASE_DATE_STRING = oneMovieData.getString(RELEASE_DATE);
-                POPULARITY_STRING = oneMovieData.getString(POPULARITY);
-                VOTE_AVERAGE_STRING = oneMovieData.getString(VOTE_AVERAGE_);
-
-                mAdapter = null;
-                MovieEntity entity = new MovieEntity(POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE_STRING);
-                list.add(entity);
-            }
-
-            return list;
-        }
-
-        @Override
-        protected ArrayList<MovieEntity> doInBackground(String... params) {
-
-            String Movies_images_JsonSTR = null;
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            if (params.length == 0) {
-                return null;
-            }
-
-            try {
-
-                URL url = new URL(params[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    Movies_images_JsonSTR = null;
-                }
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-                if (buffer.length() == 0) {
-                    return null;
-                }
-
-                Movies_images_JsonSTR = buffer.toString();
-
-                Log.v(LOG_TAG, "Movies JSON String: " + Movies_images_JsonSTR);
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error here Exactly ", e);
-
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-            try {
-                return getMovieDataFromJson(Movies_images_JsonSTR);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, "didn't got Movies Data from getJsonData method", e);
-
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieEntity> result) {
-            if (result != null) {
-                mAdapter = null;
-                list = result;
-                mAdapter = new ImagesAdapter(getActivity(), result);
-                recyclerView.setAdapter(mAdapter);
-                GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-                Log.v("MainFragment", Integer.toString(Util.pos));
-                layoutManager.scrollToPosition(Util.pos);
-            }
-        }
     }
 }
