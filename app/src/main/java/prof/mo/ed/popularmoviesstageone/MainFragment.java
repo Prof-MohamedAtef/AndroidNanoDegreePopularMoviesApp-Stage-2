@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Prof-Mohamed Atef on 8/7/2018.
@@ -30,7 +31,7 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
     }
 
     @Override
-    public void onTaskCompleted(ArrayList<MovieEntity> result) {
+    public void onTaskCompleted(String Type,ArrayList<RoomHelper> result) {
         if (result != null) {
             mAdapter = null;
             list = result;
@@ -44,12 +45,12 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
 
 
     public interface MovieDataListener {
-        void onMovieFragmentSelected(MovieEntity movieEntity);
+        void onMovieFragmentSelected(RoomHelper movieEntity);
     }
 
     public ImagesAdapter mAdapter;
 
-    ArrayList<MovieEntity> list = new ArrayList<MovieEntity>();
+    ArrayList<RoomHelper> list = new ArrayList<RoomHelper>();
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -99,6 +100,7 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
     final String VIDEO_COMBINE_VOTE_AVERAGE = DIR_MOVIEW_TYPE + SORT_BY + VOTE_AVERAGE + API_KEY;
 
     RecyclerView recyclerView;
+    AppDatabase database;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,13 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
         // resource for my overflow icon menu
         // http://stackoverflow.com/questions/21544501/overflow-icon-in-action-bar-invisible
         apiKey=BuildConfig.ApiKey;
+        database=new AppDatabase() {
+            @Override
+            public RoomDao movieDao() {
+                return null;
+            }
+        };
+        database=AppDatabase.getAppDatabase(getActivity());
         try {
             ViewConfiguration config = ViewConfiguration.get(getActivity());
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -213,9 +222,30 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
                 }
                 Util.type = 1;
                 break;
+            case R.id.favorites:
+                Util.pos = 0;
+                getActivity().setTitle("Favorite Movies");
+//                list = (ArrayList<MovieEntity>) myDB.getAllData();
+                list=getAllData(database);
+                mAdapter = null;
+                mAdapter = new ImagesAdapter(getActivity(), list);
+                recyclerView.setAdapter(mAdapter);
+                Util.type = 2;
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private ArrayList<RoomHelper> getAllData(AppDatabase db) {
+//        ArrayList<MovieEntity> movieEntityArrayList=new ArrayList<>();
+//        for ( RoomHelper item : helperArrayList){
+//            movieEntityArrayList.add(item);
+//        }
+        return (ArrayList<RoomHelper>) db.movieDao().getAllMoviesData();
+
+    }
+
 
     @Override
     public void onPause() {

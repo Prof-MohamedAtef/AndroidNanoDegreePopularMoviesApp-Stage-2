@@ -19,11 +19,11 @@ import java.util.List;
  */
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder> implements Serializable {
-    private List<MovieEntity> feedItemList;
+    private List<RoomHelper> feedItemList;
 
     public transient Context mContext;
 
-    public ImagesAdapter(Context context, ArrayList<MovieEntity> feedItemList) {
+    public ImagesAdapter(Context context, ArrayList<RoomHelper> feedItemList) {
         this.feedItemList=feedItemList;
         this.mContext= context;
     }
@@ -38,9 +38,9 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
 
     @Override
     public void onBindViewHolder(ViewHOlder customViewholder, final int i) {
-        final MovieEntity feedItem=feedItemList.get(i);
-        Picasso.with(mContext).load(feedItem.getPOSTER_PATH_STRING()).into(customViewholder.one_img);
-        customViewholder.one_text.setText(feedItem.getTITLE_STRING());
+        final RoomHelper feedItem=feedItemList.get(i);
+        Picasso.with(mContext).load(feedItem.getPosterPath()).into(customViewholder.one_img);
+        customViewholder.one_text.setText(feedItem.getMovieTitle());
         customViewholder.one_img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

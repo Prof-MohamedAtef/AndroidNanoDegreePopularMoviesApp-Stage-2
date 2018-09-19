@@ -33,8 +33,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Movi
     }
 
     @Override
-    public void onMovieFragmentSelected(MovieEntity movieEntity) {
-
+    public void onMovieFragmentSelected(RoomHelper movieEntity) {
         if (mTowPanel) {
             //Two Pane Ui
             DetailFragment detailFragment = new DetailFragment();

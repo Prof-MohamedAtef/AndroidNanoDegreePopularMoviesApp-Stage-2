@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * Created by Prof-Mohamed Atef on 8/14/2018.
  */
 
-public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<MovieEntity>> {
+public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelper>> {
 
     public String main_List = "results";
 
@@ -46,11 +46,11 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<MovieEnt
     public JSONArray moviesDataArray;
     public JSONObject oneMovieData;
 
-    ArrayList<MovieEntity> list = new ArrayList<MovieEntity>();
+    ArrayList<RoomHelper> list = new ArrayList<RoomHelper>();
 
     private final String LOG_TAG = CustomAsyncTask.class.getSimpleName();
 
-    private ArrayList<MovieEntity> getMovieDataFromJson(String MoviesJsonStr)
+    private ArrayList<RoomHelper> getMovieDataFromJson(String MoviesJsonStr)
             throws JSONException {
 
         MoviesJson = new JSONObject(MoviesJsonStr);
@@ -70,21 +70,92 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<MovieEnt
             POPULARITY_STRING = oneMovieData.getString(POPULARITY);
             VOTE_AVERAGE_STRING = oneMovieData.getString(VOTE_AVERAGE_);
 
-            MovieEntity entity = new MovieEntity(POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE_STRING);
+            RoomHelper entity = new RoomHelper(POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE_STRING);
             list.add(entity);
         }
 
         return list;
     }
+
+    public JSONObject moviesReviews;
+    public JSONArray moviesReviewsArray;
+    public JSONObject oneReviewsData;
+
+    private ArrayList<RoomHelper> getReviewsDataFromJson(String MoviesJsonStr)
+            throws JSONException {
+
+
+        moviesReviews = new JSONObject(MoviesJsonStr);
+        moviesReviewsArray = moviesReviews.getJSONArray(main_List);
+        list.clear();
+        Log.v("jsonArraySize", Integer.toString(moviesReviewsArray.length()));
+        for (int i = 0; i < moviesReviewsArray.length(); i++) {
+            String AUTHOR_STRING, CONTENT_STRING;
+            String AUTHOR = "author", CONTENT = "content";
+            // Get the JSON object representing a movie per each loop
+            oneReviewsData = moviesReviewsArray.getJSONObject(i);
+            AUTHOR_STRING = oneReviewsData.getString(AUTHOR);
+            Log.v("reviewData", AUTHOR_STRING);
+            CONTENT_STRING = oneReviewsData.getString(CONTENT);
+            Log.v("reviewData", CONTENT_STRING);
+            RoomHelper entity = new RoomHelper(AUTHOR_STRING, CONTENT_STRING);
+            list.add(entity);
+        }
+        if (list.size()>0){
+            Log.v("auther_name", list.get(0).AUTHOR_STRING);
+            Log.v("ArraySize", Integer.toString(list.size()));
+        }
+        return list;
+    }
+
+    public JSONObject moviesTrailers;
+    public JSONArray moviesTrailersArray;
+    public JSONObject oneTrailerData;
+
+    private ArrayList<RoomHelper> getTrailersDataFromJson(String TrailersJsonStr)
+            throws JSONException {
+
+        moviesTrailers = new JSONObject(TrailersJsonStr);
+        moviesTrailersArray = moviesTrailers.getJSONArray(main_List);
+
+        list.clear();
+        for (int i = 0; i < moviesTrailersArray.length(); i++) {
+
+            // Get the JSON object representing a Trailer per each loop
+
+            String TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING;
+            String TRAILER_ID = "id", TRAILER_KEY = "key", TRAILER_NAME = "name", TRAILER_SITE = "site", TRAILER_SIZE = "size";
+
+            oneTrailerData = moviesTrailersArray.getJSONObject(i);
+
+            TRAILER_ID_STRING = oneTrailerData.getString(TRAILER_ID);
+            TRAILER_KEY_STRING = oneTrailerData.getString(TRAILER_KEY);
+            TRAILER_NAME_STRING = oneTrailerData.getString(TRAILER_NAME);
+            TRAILER_SITE_STRING = oneTrailerData.getString(TRAILER_SITE);
+            TRAILER_SIZE_STRING = oneTrailerData.getString(TRAILER_SIZE);
+
+            RoomHelper entity = new RoomHelper(TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING);
+            list.add(entity);
+        }
+
+        return list;
+    }
+
     String s="";
+    String Type=null;
     private OnTaskCompleted onTaskCompleted;
 
     CustomAsyncTask(OnTaskCompleted onTaskCompleted){
         this.onTaskCompleted=onTaskCompleted;
     }
 
+    CustomAsyncTask(String str, OnTaskCompleted onTaskCompleted){
+        this.onTaskCompleted=onTaskCompleted;
+        this.Type=str;
+    }
+
     @Override
-    protected ArrayList<MovieEntity> doInBackground(String... params) {
+    protected ArrayList<RoomHelper> doInBackground(String... params) {
 
         String Movies_images_JsonSTR = null;
 
@@ -138,7 +209,15 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<MovieEnt
             }
         }
         try {
-            return getMovieDataFromJson(Movies_images_JsonSTR);
+            if (Type!=null){
+                   if (Type.equals("review")){
+                       return getReviewsDataFromJson(Movies_images_JsonSTR);
+                   }else if (Type.equals("trailer")){
+                       return getTrailersDataFromJson(Movies_images_JsonSTR);
+                   }
+            }else if (Type==null) {
+                return getMovieDataFromJson(Movies_images_JsonSTR);
+            }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "didn't got Movies Data from getJsonData method", e);
 
@@ -153,14 +232,14 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<MovieEnt
     }
 
     @Override
-    protected void onPostExecute(ArrayList<MovieEntity> result) {
+    protected void onPostExecute(ArrayList<RoomHelper> result) {
         super.onPostExecute(result);
         if (result != null) {
-            onTaskCompleted.onTaskCompleted(result);
+            onTaskCompleted.onTaskCompleted(Type,result);
         }
     }
 
     public interface OnTaskCompleted{
-        void onTaskCompleted(ArrayList<MovieEntity> result);
+        void onTaskCompleted(String Type,ArrayList<RoomHelper> result);
     }
 }

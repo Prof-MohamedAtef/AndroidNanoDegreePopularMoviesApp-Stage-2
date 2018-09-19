@@ -1,16 +1,25 @@
 package prof.mo.ed.popularmoviesstageone;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 
 /**
- * Created by Prof-Mohamed on 8/7/2018.
+ * Created by Prof-Mohamed on 8/6/2016.
  */
 
-public class MovieEntity implements Serializable {
+//public class MovieEntity {
+public class MovieEntity extends AndroidViewModel implements Serializable {
 
-    String POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE,
-            TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING, AUTHOR_STRING, CONTENT_STRING;
-    private String YoutubeUrl = "https://www.youtube.com/watch?v=";
+    String POSTER_PATH_STRING,VIDEO_ID_STRING,TITLE_STRING,OVERVIEW_STRING,RELEASE_DATE_STRING,POPULARITY_STRING,VOTE_AVERAGE,
+    TRAILER_ID_STRING,TRAILER_KEY_STRING,TRAILER_NAME_STRING,TRAILER_SITE_STRING,TRAILER_SIZE_STRING,AUTHOR_STRING,CONTENT_STRING;
+    private String YoutubeUrl="https://www.youtube.com/watch?v=";
+
+    public MovieEntity(@NonNull Application application) {
+        super(application);
+    }
 
     public String getAUTHOR_STRING() {
         return AUTHOR_STRING;
@@ -28,20 +37,9 @@ public class MovieEntity implements Serializable {
         this.CONTENT_STRING = CONTENT_STRING;
     }
 
-    public MovieEntity(String AUTHOR_STRING, String CONTENT_STRING) {
-        this.AUTHOR_STRING = AUTHOR_STRING;
-        this.CONTENT_STRING = CONTENT_STRING;
-    }
 
-    public MovieEntity(String TRAILER_ID_STRING, String TRAILER_KEY_STRING, String TRAILER_NAME_STRING, String TRAILER_SITE_STRING, String TRAILER_SIZE_STRING) {
-        this.TRAILER_ID_STRING = TRAILER_ID_STRING;
-        this.TRAILER_KEY_STRING = TRAILER_KEY_STRING;
-        this.TRAILER_NAME_STRING = TRAILER_NAME_STRING;
-        this.TRAILER_SITE_STRING = TRAILER_SITE_STRING;
-        this.TRAILER_SIZE_STRING = TRAILER_SIZE_STRING;
-    }
 
-    public String getTRAILER_ID_STRING() {
+        public String getTRAILER_ID_STRING() {
         return TRAILER_ID_STRING;
     }
 
@@ -49,9 +47,7 @@ public class MovieEntity implements Serializable {
         this.TRAILER_ID_STRING = TRAILER_ID_STRING;
     }
 
-    public String getTRAILER_KEY_STRING() {
-        return YoutubeUrl + TRAILER_KEY_STRING;
-    }
+    public String getTRAILER_KEY_STRING() {        return YoutubeUrl+ TRAILER_KEY_STRING;    }
 
     public void setTRAILER_KEY_STRING(String TRAILER_KEY_STRING) {
         this.TRAILER_KEY_STRING = TRAILER_KEY_STRING;
@@ -94,26 +90,13 @@ public class MovieEntity implements Serializable {
     final String IMAGES_BASE_Url = "http://image.tmdb.org";
     final String IMAGE_SIZE = "/t/p/w185/";
 
-    final String Image = IMAGES_BASE_Url + IMAGE_SIZE;
-
-    public MovieEntity() {
-
-    }
+    final String Image=IMAGES_BASE_Url+IMAGE_SIZE;
 
 
-    public MovieEntity(String POSTER_PATH_STRING, String VIDEO_ID_STRING, String TITLE_STRING, String OVERVIEW_STRING, String RELEASE_DATE_STRING, String POPULARITY_STRING, String VOTE_AVERAGE) {
-        this.POSTER_PATH_STRING = POSTER_PATH_STRING;
-        this.VIDEO_ID_STRING = VIDEO_ID_STRING;
-        this.TITLE_STRING = TITLE_STRING;
-        this.OVERVIEW_STRING = OVERVIEW_STRING;
-        this.RELEASE_DATE_STRING = RELEASE_DATE_STRING;
-        this.POPULARITY_STRING = POPULARITY_STRING;
-        this.VOTE_AVERAGE = VOTE_AVERAGE;
-    }
 
 
     public String getPOSTER_PATH_STRING() {
-        return Image + POSTER_PATH_STRING;
+        return Image+POSTER_PATH_STRING;
     }
 
     public void setPOSTER_PATH_STRING(String POSTER_PATH_STRING) {
