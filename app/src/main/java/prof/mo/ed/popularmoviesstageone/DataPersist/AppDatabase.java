@@ -18,6 +18,7 @@ import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 
 /**
  * Created by Prof-Mohamed Atef on 8/26/2018.
+ * Reference : from both of github repo Android Architecture Components and StackoverFlow
  */
 @Database(entities = {MoviesRoomEntity.class},version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
