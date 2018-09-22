@@ -1,7 +1,8 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.Entities;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
@@ -16,21 +17,21 @@ import java.io.Serializable;
  */
 
 @Entity(tableName = "Favourites")
-public class RoomHelper implements Serializable {
+public class MoviesRoomEntity implements Serializable {
 
 
-    public RoomHelper() {
+    public MoviesRoomEntity() {
     }
 
 
-//    @Ignore
-//    @NonNull
-//    @PrimaryKey(autoGenerate = true)
-//    @ColumnInfo(name = "ID")
-//    public int ID;
+  //  @Ignore
+    @NonNull
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "ID")
+    public int ID;
 
     @NonNull
-    @PrimaryKey()
+//    @PrimaryKey()
     @ColumnInfo(name = "MovieID")
     public String MovieID;
 
@@ -62,13 +63,13 @@ public class RoomHelper implements Serializable {
     @ColumnInfo(name = "PosterPath")
     public String PosterPath;
 
-//    public int getID() {
-//        return ID;
-//    }
-//
-//    public void setID(int ID) {
-//        this.ID = ID;
-//    }
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
 
     public String getMovieID() {
         return MovieID;
@@ -127,20 +128,18 @@ public class RoomHelper implements Serializable {
     }
 
     public String getPosterPath() {
-        return Image+ PosterPath;
+        return IMAGES_BASE_Url+ PosterPath;
     }
 
     public void setPosterPath(String PosterPath) {
         this.PosterPath = PosterPath;
     }
 
-    String IMAGES_BASE_Url = "http://image.tmdb.org";
-    String IMAGE_SIZE = "/t/p/w185/";
+    public String IMAGES_BASE_Url = "http://image.tmdb.org/t/p/w185";
 
-    String Image = IMAGES_BASE_Url + IMAGE_SIZE;
 
     @Ignore
-    public RoomHelper(String PosterPath, String MovieID, String MovieTitle, String MovieOverView, String ReleaseDate, String Popularity, String VoteAverage) {
+    public MoviesRoomEntity(String PosterPath, String MovieID, String MovieTitle, String MovieOverView, String ReleaseDate, String Popularity, String VoteAverage) {
         this.PosterPath= PosterPath;
         this.MovieID= MovieID;
         this.MovieTitle= MovieTitle;
@@ -151,7 +150,7 @@ public class RoomHelper implements Serializable {
     }
 
     @Ignore
-    public RoomHelper(String AUTHOR_STRING, String CONTENT_STRING) {
+    public MoviesRoomEntity(String AUTHOR_STRING, String CONTENT_STRING) {
         this.AUTHOR_STRING = AUTHOR_STRING;
         this.CONTENT_STRING = CONTENT_STRING;
     }
@@ -173,10 +172,10 @@ public class RoomHelper implements Serializable {
     }
 
     @Ignore
-    String AUTHOR_STRING, CONTENT_STRING,TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING;
+    public String AUTHOR_STRING, CONTENT_STRING,TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING;
 
     @Ignore
-    public RoomHelper(String TRAILER_ID_STRING, String TRAILER_KEY_STRING, String TRAILER_NAME_STRING, String TRAILER_SITE_STRING, String TRAILER_SIZE_STRING) {
+    public MoviesRoomEntity(String TRAILER_ID_STRING, String TRAILER_KEY_STRING, String TRAILER_NAME_STRING, String TRAILER_SITE_STRING, String TRAILER_SIZE_STRING) {
         this.TRAILER_ID_STRING = TRAILER_ID_STRING;
         this.TRAILER_KEY_STRING = TRAILER_KEY_STRING;
         this.TRAILER_NAME_STRING = TRAILER_NAME_STRING;

@@ -1,4 +1,4 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,23 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import prof.mo.ed.popularmoviesstageone.Fragments.MainFragment;
+import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
+import prof.mo.ed.popularmoviesstageone.R;
 
 /**
  * Created by Prof-Mohamed on 8/7/2018.
  */
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder> implements Serializable {
-    private List<RoomHelper> feedItemList;
+    private List<MoviesRoomEntity> feedItemList;
 
     public transient Context mContext;
 
-    public ImagesAdapter(Context context, ArrayList<RoomHelper> feedItemList) {
+    public ImagesAdapter(Context context, List<MoviesRoomEntity> feedItemList) {
         this.feedItemList=feedItemList;
         this.mContext= context;
     }
@@ -35,31 +35,25 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
         return (ViewHOlder) viewHolder;
     }
 
-
     @Override
     public void onBindViewHolder(ViewHOlder customViewholder, final int i) {
-        final RoomHelper feedItem=feedItemList.get(i);
+        final MoviesRoomEntity feedItem = feedItemList.get(i);
         Picasso.with(mContext).load(feedItem.getPosterPath()).into(customViewholder.one_img);
         customViewholder.one_text.setText(feedItem.getMovieTitle());
         customViewholder.one_img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (feedItemList!=null)
-                {
-                    ((MainFragment.MovieDataListener)mContext).onMovieFragmentSelected(feedItemList.get(i));
+                if (feedItemList != null) {
+                    ((MainFragment.MovieDataListener) mContext).onMovieFragmentSelected(feedItemList.get(i));
                 }
             }
         });
-        }
-
-
+    }
 
     @Override
     public int getItemCount() {
         return (null!=feedItemList?feedItemList.size():0);
     }
-
-
 
     public class ViewHOlder extends RecyclerView.ViewHolder {
         protected ImageView one_img;

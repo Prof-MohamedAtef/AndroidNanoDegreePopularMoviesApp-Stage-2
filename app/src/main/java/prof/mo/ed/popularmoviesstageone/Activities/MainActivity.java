@@ -1,9 +1,14 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
+
+import prof.mo.ed.popularmoviesstageone.Fragments.DetailFragment;
+import prof.mo.ed.popularmoviesstageone.Fragments.MainFragment;
+import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
+import prof.mo.ed.popularmoviesstageone.R;
 
 public class MainActivity extends AppCompatActivity implements MainFragment.MovieDataListener {
 
@@ -33,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Movi
     }
 
     @Override
-    public void onMovieFragmentSelected(RoomHelper movieEntity) {
+    public void onMovieFragmentSelected(MoviesRoomEntity movieEntity) {
         if (mTowPanel) {
             //Two Pane Ui
             DetailFragment detailFragment = new DetailFragment();

@@ -1,11 +1,17 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.Fragments;
 
 import android.app.Fragment;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,24 +23,34 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import prof.mo.ed.popularmoviesstageone.Adapters.ImagesAdapter;
+import prof.mo.ed.popularmoviesstageone.BuildConfig;
+import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
+import prof.mo.ed.popularmoviesstageone.DataPersist.Dao.RoomMoviesDao;
+import prof.mo.ed.popularmoviesstageone.GenericAsyncTasks.MoviesAPIAsyncTask;
+import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
+import prof.mo.ed.popularmoviesstageone.R;
+import prof.mo.ed.popularmoviesstageone.Util;
+import prof.mo.ed.popularmoviesstageone.ViewModel.MoviesViewModel;
+
 /**
  * Created by Prof-Mohamed Atef on 8/7/2018.
  */
-public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskCompleted{
+public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskCompleted{
 
     public MainFragment() {
 
     }
 
     @Override
-    public void onTaskCompleted(String Type,ArrayList<RoomHelper> result) {
+    public void onTaskCompleted(String Type, ArrayList<MoviesRoomEntity> result) {
         if (result != null) {
             mAdapter = null;
-            list = result;
             mAdapter = new ImagesAdapter(getActivity(), result);
             recyclerView.setAdapter(mAdapter);
             GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
@@ -45,12 +61,17 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
 
 
     public interface MovieDataListener {
-        void onMovieFragmentSelected(RoomHelper movieEntity);
+        void onMovieFragmentSelected(MoviesRoomEntity movieEntity);
     }
 
     public ImagesAdapter mAdapter;
 
-    ArrayList<RoomHelper> list = new ArrayList<RoomHelper>();
+    LiveData<List<MoviesRoomEntity>> list = new LiveData<List<MoviesRoomEntity>>() {
+        @Override
+        public void observeForever(@NonNull Observer<List<MoviesRoomEntity>> observer) {
+            super.observeForever(observer);
+        }
+    };
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -70,37 +91,25 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
 
     String apiKey;
     String order;
-    // constant variables for any image
-    final String IMAGES_BASE_Url = "http://image.tmdb.org";
-    final String IMAGE_SIZE = "/t/p/w185/";
-
-    final String Image = IMAGES_BASE_Url + IMAGE_SIZE;
-    // EACH INDIVIDUAL IMAGE LINK
-    final String Batman_Image = "/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg";
-    final String IMAGE_combine = IMAGES_BASE_Url + IMAGE_SIZE + Batman_Image;
-    final String now = "http://api.themoviedb.org/3/movie/popular?api_key="+apiKey;
-    final String Start = "/3/movie/popular?api_key="+apiKey;
-    // Json link containing Poster_path, Overview, Videos Id, Release_Date, popularity, Titles,
-    //BASE URL
-    final String JSON_BASE_URL_START = "http://api.themoviedb.org";
-    //START URL
-    final String DIR_MOIVE_START = "/3/movie/popular?";
-    final String API_KEY_START = "api_key="+apiKey;
-    final String VIDEO_COMBINE_START = DIR_MOIVE_START + API_KEY_START;
-    //SORTING URLS
-
-    final String DIR_MOVIEW_TYPE = "/3/discover/movie?";
-    final String SORT_BY = "sort_by=";
-    final String POPULARITY_DESC = "popularity.desc";
-    final String VOTE_AVERAGE = "vote_average.desc";
-    final String API_KEY = "&api_key="+apiKey;
-    //
-    final String VIDEO_COMBINE_POPULARITY = DIR_MOVIEW_TYPE + SORT_BY + POPULARITY_DESC + API_KEY;
-
-    final String VIDEO_COMBINE_VOTE_AVERAGE = DIR_MOVIEW_TYPE + SORT_BY + VOTE_AVERAGE + API_KEY;
-
     RecyclerView recyclerView;
     AppDatabase database;
+    MoviesViewModel moviesViewModel;
+
+    private void subscribeUi(MoviesViewModel viewModel) {
+        // Update the list when the data changes
+        viewModel.getFavoriteMovies().observe((LifecycleOwner) getActivity(), new Observer<List<MoviesRoomEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<MoviesRoomEntity> Movies) {
+                viewModel.getFavoriteMovies().removeObserver(this);
+                if (Movies!= null) {
+                    mAdapter = null;
+                    mAdapter = new ImagesAdapter(getActivity(), Movies);
+                    mAdapter.notifyDataSetChanged();
+                    recyclerView.setAdapter(mAdapter);
+                }
+            }
+        });
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,14 +117,20 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
         setHasOptionsMenu(true);
         // resource for my overflow icon menu
         // http://stackoverflow.com/questions/21544501/overflow-icon-in-action-bar-invisible
-        apiKey=BuildConfig.ApiKey;
+        apiKey= BuildConfig.ApiKey;
         database=new AppDatabase() {
             @Override
-            public RoomDao movieDao() {
+            public void clearAllTables() {
+
+            }
+
+            @Override
+            public RoomMoviesDao movieDao() {
                 return null;
             }
         };
-        database=AppDatabase.getAppDatabase(getActivity());
+        moviesViewModel= ViewModelProviders.of((FragmentActivity) getActivity()).get(MoviesViewModel.class);
+        subscribeUi(moviesViewModel);
         try {
             ViewConfiguration config = ViewConfiguration.get(getActivity());
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -144,15 +159,14 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
             Util.type = Integer.parseInt(savedInstanceState.getString("type"));
             Util.pos = Integer.parseInt(savedInstanceState.getString("position"));
         }
-
         checkConnection();
             switch (Util.type) {
             case 0:
                 getActivity().setTitle("Popular Movies");
                 order = "popular";
                 if (isConnected()) {
-                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
-                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
+                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -161,8 +175,8 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
                 if (isConnected()) {
-                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
-                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
+                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -173,6 +187,7 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
     }
 
     boolean isInternetConnected;
+
 
     private boolean checkConnection() {
         return isInternetConnected=isConnected();
@@ -203,8 +218,8 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
                 Util.type = 0;
                 Util.pos = 0;
                 if (isConnected()) {
-                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
-                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
+                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -215,8 +230,8 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
                 getActivity().setTitle("Top Rated Movies");
                 order = "top_rated";
                 if (isConnected()) {
-                    CustomAsyncTask customAsyncTask=new CustomAsyncTask(MainFragment.this);
-                    customAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
+                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -225,27 +240,12 @@ public class MainFragment extends Fragment implements CustomAsyncTask.OnTaskComp
             case R.id.favorites:
                 Util.pos = 0;
                 getActivity().setTitle("Favorite Movies");
-//                list = (ArrayList<MovieEntity>) myDB.getAllData();
-                list=getAllData(database);
-                mAdapter = null;
-                mAdapter = new ImagesAdapter(getActivity(), list);
-                recyclerView.setAdapter(mAdapter);
+                subscribeUi(moviesViewModel);
                 Util.type = 2;
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private ArrayList<RoomHelper> getAllData(AppDatabase db) {
-//        ArrayList<MovieEntity> movieEntityArrayList=new ArrayList<>();
-//        for ( RoomHelper item : helperArrayList){
-//            movieEntityArrayList.add(item);
-//        }
-        return (ArrayList<RoomHelper>) db.movieDao().getAllMoviesData();
-
-    }
-
 
     @Override
     public void onPause() {

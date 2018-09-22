@@ -1,8 +1,6 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.GenericAsyncTasks;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -17,11 +15,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
+
 /**
  * Created by Prof-Mohamed Atef on 8/14/2018.
  */
 
-public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelper>> {
+public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<MoviesRoomEntity>> {
 
     public String main_List = "results";
 
@@ -46,11 +46,11 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     public JSONArray moviesDataArray;
     public JSONObject oneMovieData;
 
-    ArrayList<RoomHelper> list = new ArrayList<RoomHelper>();
+    ArrayList<MoviesRoomEntity> list = new ArrayList<MoviesRoomEntity>();
 
-    private final String LOG_TAG = CustomAsyncTask.class.getSimpleName();
+    private final String LOG_TAG = MoviesAPIAsyncTask.class.getSimpleName();
 
-    private ArrayList<RoomHelper> getMovieDataFromJson(String MoviesJsonStr)
+    private ArrayList<MoviesRoomEntity> getMovieDataFromJson(String MoviesJsonStr)
             throws JSONException {
 
         MoviesJson = new JSONObject(MoviesJsonStr);
@@ -70,7 +70,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
             POPULARITY_STRING = oneMovieData.getString(POPULARITY);
             VOTE_AVERAGE_STRING = oneMovieData.getString(VOTE_AVERAGE_);
 
-            RoomHelper entity = new RoomHelper(POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE_STRING);
+            MoviesRoomEntity entity = new MoviesRoomEntity(POSTER_PATH_STRING, VIDEO_ID_STRING, TITLE_STRING, OVERVIEW_STRING, RELEASE_DATE_STRING, POPULARITY_STRING, VOTE_AVERAGE_STRING);
             list.add(entity);
         }
 
@@ -81,7 +81,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     public JSONArray moviesReviewsArray;
     public JSONObject oneReviewsData;
 
-    private ArrayList<RoomHelper> getReviewsDataFromJson(String MoviesJsonStr)
+    private ArrayList<MoviesRoomEntity> getReviewsDataFromJson(String MoviesJsonStr)
             throws JSONException {
 
 
@@ -98,7 +98,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
             Log.v("reviewData", AUTHOR_STRING);
             CONTENT_STRING = oneReviewsData.getString(CONTENT);
             Log.v("reviewData", CONTENT_STRING);
-            RoomHelper entity = new RoomHelper(AUTHOR_STRING, CONTENT_STRING);
+            MoviesRoomEntity entity = new MoviesRoomEntity(AUTHOR_STRING, CONTENT_STRING);
             list.add(entity);
         }
         if (list.size()>0){
@@ -112,7 +112,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     public JSONArray moviesTrailersArray;
     public JSONObject oneTrailerData;
 
-    private ArrayList<RoomHelper> getTrailersDataFromJson(String TrailersJsonStr)
+    private ArrayList<MoviesRoomEntity> getTrailersDataFromJson(String TrailersJsonStr)
             throws JSONException {
 
         moviesTrailers = new JSONObject(TrailersJsonStr);
@@ -134,7 +134,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
             TRAILER_SITE_STRING = oneTrailerData.getString(TRAILER_SITE);
             TRAILER_SIZE_STRING = oneTrailerData.getString(TRAILER_SIZE);
 
-            RoomHelper entity = new RoomHelper(TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING);
+            MoviesRoomEntity entity = new MoviesRoomEntity(TRAILER_ID_STRING, TRAILER_KEY_STRING, TRAILER_NAME_STRING, TRAILER_SITE_STRING, TRAILER_SIZE_STRING);
             list.add(entity);
         }
 
@@ -145,17 +145,17 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     String Type=null;
     private OnTaskCompleted onTaskCompleted;
 
-    CustomAsyncTask(OnTaskCompleted onTaskCompleted){
+    public MoviesAPIAsyncTask(OnTaskCompleted onTaskCompleted){
         this.onTaskCompleted=onTaskCompleted;
     }
 
-    CustomAsyncTask(String str, OnTaskCompleted onTaskCompleted){
+    public MoviesAPIAsyncTask(String str, OnTaskCompleted onTaskCompleted){
         this.onTaskCompleted=onTaskCompleted;
         this.Type=str;
     }
 
     @Override
-    protected ArrayList<RoomHelper> doInBackground(String... params) {
+    protected ArrayList<MoviesRoomEntity> doInBackground(String... params) {
 
         String Movies_images_JsonSTR = null;
 
@@ -232,7 +232,7 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     }
 
     @Override
-    protected void onPostExecute(ArrayList<RoomHelper> result) {
+    protected void onPostExecute(ArrayList<MoviesRoomEntity> result) {
         super.onPostExecute(result);
         if (result != null) {
             onTaskCompleted.onTaskCompleted(Type,result);
@@ -240,6 +240,6 @@ public class CustomAsyncTask extends AsyncTask <String, Void, ArrayList<RoomHelp
     }
 
     public interface OnTaskCompleted{
-        void onTaskCompleted(String Type,ArrayList<RoomHelper> result);
+        void onTaskCompleted(String Type,ArrayList<MoviesRoomEntity> result);
     }
 }

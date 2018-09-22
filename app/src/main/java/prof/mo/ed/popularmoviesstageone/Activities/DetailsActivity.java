@@ -1,7 +1,10 @@
-package prof.mo.ed.popularmoviesstageone;
+package prof.mo.ed.popularmoviesstageone.Activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import prof.mo.ed.popularmoviesstageone.Fragments.DetailFragment;
+import prof.mo.ed.popularmoviesstageone.R;
 
 
 public class DetailsActivity extends AppCompatActivity {
