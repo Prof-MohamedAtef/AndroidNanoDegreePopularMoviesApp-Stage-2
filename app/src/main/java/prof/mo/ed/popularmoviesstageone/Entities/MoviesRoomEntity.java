@@ -128,11 +128,11 @@ public class MoviesRoomEntity implements Serializable {
     }
 
     public String getPosterPath() {
-        return IMAGES_BASE_Url+ PosterPath;
+        return PosterPath;
     }
 
     public void setPosterPath(String PosterPath) {
-        this.PosterPath = PosterPath;
+        this.PosterPath =  PosterPath;
     }
 
     public String IMAGES_BASE_Url = "http://image.tmdb.org/t/p/w185";
@@ -140,7 +140,7 @@ public class MoviesRoomEntity implements Serializable {
 
     @Ignore
     public MoviesRoomEntity(String PosterPath, String MovieID, String MovieTitle, String MovieOverView, String ReleaseDate, String Popularity, String VoteAverage) {
-        this.PosterPath= PosterPath;
+        this.PosterPath= IMAGES_BASE_Url+PosterPath;
         this.MovieID= MovieID;
         this.MovieTitle= MovieTitle;
         this.MovieOverView= MovieOverView;
