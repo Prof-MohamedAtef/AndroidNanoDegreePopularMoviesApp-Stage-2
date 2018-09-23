@@ -73,11 +73,16 @@ public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskC
         }
     };
 
+    public static final String KEY_POSITION = "position";
+    public static final String KEY_TYPE = "type";
+    public static final String KEY_POPULAR = "popular";
+    public static final String KEY_TOP_RATED = "top_rated";
+    public static final String KEY_ORIGINAL_URL = "http://api.themoviedb.org/3/movie/";
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("type", Integer.toString(Util.type));
-        outState.putString("position", Integer.toString(Util.pos));
+        outState.putString(KEY_TYPE, Integer.toString(Util.type));
+        outState.putString(KEY_POSITION, Integer.toString(Util.pos));
     }
 
     @Override
@@ -85,7 +90,7 @@ public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskC
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
             mAdapter = null;
-            Util.type = Integer.parseInt(savedInstanceState.getString("type"));
+            Util.type = Integer.parseInt(savedInstanceState.getString(KEY_TYPE));
         }
     }
 
@@ -156,27 +161,27 @@ public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskC
         if (savedInstanceState != null) {
             mAdapter = null;
             //savedInstanceState.getSerializable("myList");
-            Util.type = Integer.parseInt(savedInstanceState.getString("type"));
-            Util.pos = Integer.parseInt(savedInstanceState.getString("position"));
+            Util.type = Integer.parseInt(savedInstanceState.getString(KEY_TYPE));
+            Util.pos = Integer.parseInt(savedInstanceState.getString(KEY_POSITION));
         }
         checkConnection();
             switch (Util.type) {
             case 0:
-                getActivity().setTitle("Popular Movies");
-                order = "popular";
+                getActivity().setTitle(getString(R.string.popular_movies));
+                order = KEY_POPULAR;
                 if (isConnected()) {
                     MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
-                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    moviesAPIAsyncTask.execute(KEY_ORIGINAL_URL + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 1:
-                getActivity().setTitle("Top Rated Movies");
-                order = "top_rated";
+                getActivity().setTitle(getString(R.string.top_rated));
+                order = KEY_TOP_RATED;
                 if (isConnected()) {
                     MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
-                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    moviesAPIAsyncTask.execute(KEY_ORIGINAL_URL + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -213,25 +218,24 @@ public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskC
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.most_popular:
-                getActivity().setTitle("Popular Movies");
-                order = "popular";
+                getActivity().setTitle(getString(R.string.popular_movies));
+                order = KEY_POPULAR;
                 Util.type = 0;
                 Util.pos = 0;
                 if (isConnected()) {
                     MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
-                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    moviesAPIAsyncTask.execute(KEY_ORIGINAL_URL + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
-
                 break;
             case R.id.highest_rated:
                 Util.pos = 0;
-                getActivity().setTitle("Top Rated Movies");
-                order = "top_rated";
+                getActivity().setTitle(getString(R.string.top_rated));
+                order = KEY_TOP_RATED;
                 if (isConnected()) {
                     MoviesAPIAsyncTask moviesAPIAsyncTask =new MoviesAPIAsyncTask(MainFragment.this);
-                    moviesAPIAsyncTask.execute("http://api.themoviedb.org/3/movie/" + order + "?api_key="+apiKey);
+                    moviesAPIAsyncTask.execute(KEY_ORIGINAL_URL + order + "?api_key="+apiKey);
                 }else {
                     Toast.makeText(getActivity(), getResources().getString(R.string.pending_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -239,7 +243,7 @@ public class MainFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskC
                 break;
             case R.id.favorites:
                 Util.pos = 0;
-                getActivity().setTitle("Favorite Movies");
+                getActivity().setTitle(getString(R.string.favorite_movies));
                 subscribeUi(moviesViewModel);
                 Util.type = 2;
                 break;

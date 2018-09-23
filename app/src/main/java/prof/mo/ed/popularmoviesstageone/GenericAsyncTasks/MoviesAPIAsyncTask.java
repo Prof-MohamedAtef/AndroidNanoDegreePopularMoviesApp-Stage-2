@@ -46,7 +46,7 @@ public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<Movie
     public JSONArray moviesDataArray;
     public JSONObject oneMovieData;
 
-    ArrayList<MoviesRoomEntity> list = new ArrayList<MoviesRoomEntity>();
+    private ArrayList<MoviesRoomEntity> list = new ArrayList<MoviesRoomEntity>();
 
     private final String LOG_TAG = MoviesAPIAsyncTask.class.getSimpleName();
 

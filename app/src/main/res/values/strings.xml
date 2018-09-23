@@ -1,4 +1,18 @@
 <resources>
     <string name="app_name">Popular Movies,Stage2</string>
     <string name="pending_connection">Pending Internet Connection</string>
+    <string name="addede_to_fav">Added to Favorites</string>
+    <string name="movie_not_inserted">Movie Not Inserted</string>
+    <string name="removed_from_favs">Removed From Favorites</string>
+    <string name="author_name">Author Name :</string>
+    <string name="review">Review :</string>
+    <string name="no_review">No Reviews</string>
+    <string name="default_uri">http://api.themoviedb.org/3</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated">Top Rated Movies</string>
+    <string name="favorite_movies">Favorite Movies</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="top_rated_m">Top Rated</string>
+    <string name="favorites">Favorites</string>
+
 </resources>

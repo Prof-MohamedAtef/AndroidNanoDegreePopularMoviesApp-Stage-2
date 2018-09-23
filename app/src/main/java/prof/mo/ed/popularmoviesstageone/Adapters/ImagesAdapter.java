@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import java.io.Serializable;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import prof.mo.ed.popularmoviesstageone.Fragments.MainFragment;
 import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 import prof.mo.ed.popularmoviesstageone.R;
@@ -38,7 +41,10 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
     @Override
     public void onBindViewHolder(ViewHOlder customViewholder, final int i) {
         final MoviesRoomEntity feedItem = feedItemList.get(i);
-        Picasso.with(mContext).load(feedItem.getPosterPath()).into(customViewholder.one_img);
+//        Picasso.with(mContext).load(feedItem.getPosterPath()).into(customViewholder.one_img);
+        Picasso.with(mContext).load(feedItem.getPosterPath())
+                .error(R.drawable.movie_poster)
+                .into(customViewholder.one_img);
         customViewholder.one_text.setText(feedItem.getMovieTitle());
         customViewholder.one_img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,6 +64,8 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
     public class ViewHOlder extends RecyclerView.ViewHolder {
         protected ImageView one_img;
         protected TextView one_text;
+
+
         public ViewHOlder(View converview) {
             super(converview);
             this.one_img = (ImageView) converview.findViewById(R.id.img_view);

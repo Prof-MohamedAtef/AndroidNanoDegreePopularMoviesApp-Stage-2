@@ -12,8 +12,8 @@ import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 
 public class InsertAsyncTask extends AsyncTask<Void,Void,Boolean> {
 
-    MoviesRoomEntity moviesRoomEntity;
-    AppDatabase appDatabase;
+    private MoviesRoomEntity moviesRoomEntity;
+    private AppDatabase appDatabase;
 
 
 

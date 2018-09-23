@@ -14,6 +14,7 @@ import prof.mo.ed.popularmoviesstageone.Util;
 
 /**
  * Created by Prof-Mohamed Atef on 9/20/2018.
+ * * Reference : github repo from Android Architecture Components
  */
 
 public class MoviesViewModel extends AndroidViewModel {

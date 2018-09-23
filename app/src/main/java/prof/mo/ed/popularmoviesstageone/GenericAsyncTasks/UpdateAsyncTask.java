@@ -9,9 +9,9 @@ import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
 
 public class UpdateAsyncTask extends AsyncTask<Void,Void,Boolean> {
 
-    int IsFavorite;
-    String MovieID;
-    AppDatabase appDatabase;
+    private int IsFavorite;
+    private String MovieID;
+    private AppDatabase appDatabase;
 
     public UpdateAsyncTask(AppDatabase appDatabase, int IsFavorite, String MovieID, OnTaskCompletes onTaskCompletes) {
         super();

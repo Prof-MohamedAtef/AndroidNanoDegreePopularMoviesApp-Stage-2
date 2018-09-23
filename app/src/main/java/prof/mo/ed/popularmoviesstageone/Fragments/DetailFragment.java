@@ -1,5 +1,6 @@
 package prof.mo.ed.popularmoviesstageone.Fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
@@ -18,12 +19,13 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import prof.mo.ed.popularmoviesstageone.Adapters.TrailersAdapter;
 import prof.mo.ed.popularmoviesstageone.BuildConfig;
 import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
@@ -72,6 +74,7 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
         txtOverView = (TextView) header.findViewById(R.id.txt_overview);
         imgPoster = (ImageView) header.findViewById(R.id.Image_Poster);
         text_author = (TextView) footer.findViewById(R.id.text_author);
+
         final Bundle bundle = getArguments();
         if (bundle != null) {
             movieEntity = (MoviesRoomEntity) bundle.getSerializable("twoPaneExtras");
@@ -80,17 +83,14 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
             txtVoteAverage.setText(movieEntity.getVoteAverage());
             txtOverView.setText(movieEntity.getMovieOverView());
             Picasso.with(getActivity()).load(movieEntity.getPosterPath()).into(imgPoster);
-
             movieID = movieEntity.getMovieID();
             ratingBar.setRating(0);
-
             factory = new FavoriteMovieViewModelFactory(database, movieID);
             checkMovieIDStatusViewModel =
                     ViewModelProviders.of((FragmentActivity) getActivity(), factory).get(CheckMovieIDStatusViewModel.class);
-
             getMovieID(checkMovieIDStatusViewModel);
 
-            String DefaultUri = "http://api.themoviedb.org/3";
+            String DefaultUri = getString(R.string.default_uri);
             trailersEndPoint = DefaultUri + "/movie/" + movieID + "/videos?api_key=" + apiKey;
             reviewsEndPoint = DefaultUri + "/movie/" + movieID + "/reviews?api_key=" + apiKey;
 
@@ -182,16 +182,18 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
 
     public void startFetchingReviews() {
         try {
-            MoviesAPIAsyncTask reviewsAsync = new MoviesAPIAsyncTask("review", DetailFragment.this);
+            MoviesAPIAsyncTask reviewsAsync = new MoviesAPIAsyncTask(KEY_REVIEW, DetailFragment.this);
             reviewsAsync.execute(reviewsEndPoint);
         } catch (Exception e) {
             Log.v(LOG_TAG, "didn't Execute Reviews");
         }
     }
 
+    public static final String KEY_REVIEW = "review";
+    public static final String KEY_TRAILER = "trailer";
     public void startFetchingTrailers() {
         try {
-            MoviesAPIAsyncTask fetchTrailers = new MoviesAPIAsyncTask("trailer", DetailFragment.this);
+            MoviesAPIAsyncTask fetchTrailers = new MoviesAPIAsyncTask(KEY_TRAILER, DetailFragment.this);
             fetchTrailers.execute(trailersEndPoint);
         } catch (Exception e) {
             Log.v(LOG_TAG, "didn't Execute Trailers");
@@ -238,37 +240,37 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
     public void onTaskCompleted(String Type, ArrayList<MoviesRoomEntity> result) {
         if (result != null && result.size() > 0) {
             if (Type != null) {
-                if (Type.equals("review")) {
+                if (Type.equals(KEY_REVIEW)) {
                     if (getActivity() != null && result.size() > 0) {
                         text_author.setText("");
                         for (MoviesRoomEntity mv : result) {
-                            text_author.append("Author Name : \n" + mv.getAUTHOR_STRING().toString() + "\n\n" + "Review : \n" + mv.getCONTENT_STRING().toString() + "\n\n\n**\n\n\n");
+                            text_author.append(getString(R.string.author_name)+" \n" + mv.getAUTHOR_STRING().toString() + "\n\n" + getString(R.string.review)+" \n" + mv.getCONTENT_STRING().toString() + "\n\n\n**\n\n\n");
                         }
                     }
 
-                } else if (Type.equals("trailer")) {
+                } else if (Type.equals(KEY_TRAILER)) {
                     if (getActivity() != null && result.size() > 0) {
                         trailersAdapter = new TrailersAdapter(getActivity(), R.layout.trailer_list_item, result);
                         listView_trailers.setAdapter(trailersAdapter);
                     }
                 }
-            } else text_author.setText("No Reviews");
+            } else text_author.setText(getString(R.string.no_review));
         }
     }
 
     @Override
     public void onInsertTaskCompletes(boolean x) {
         if (x == true) {
-            Toast.makeText(getActivity(), "Added to Favourites", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.addede_to_fav), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getActivity(), "Movie not Inserted", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.movie_not_inserted), Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onUpdateTaskCompletes(boolean x) {
         if (x == true) {
-            Toast.makeText(getActivity(), "Removed from Favourites", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.removed_from_favs), Toast.LENGTH_LONG).show();
         }
     }
 }

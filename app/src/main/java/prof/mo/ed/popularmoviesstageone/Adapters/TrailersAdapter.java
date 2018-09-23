@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 import prof.mo.ed.popularmoviesstageone.R;
 
@@ -29,7 +31,6 @@ public class TrailersAdapter extends ArrayAdapter<MoviesRoomEntity> {
         this.feedTrailersList=feedTrailersList;
         this.mContext=context;
     }
-
 
     @Override
     public int getCount() {
