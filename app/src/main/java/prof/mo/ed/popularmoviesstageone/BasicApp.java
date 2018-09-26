@@ -21,7 +21,6 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
-
 import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
 import prof.mo.ed.popularmoviesstageone.DataPersist.LiveDataRepo;
 
@@ -54,6 +53,4 @@ public class BasicApp extends Application{
     public LiveDataRepo getRepository() {
         return LiveDataRepo.getLiveDataRepoInstance(getDatabase());
     }
-
-
 }

@@ -20,7 +20,7 @@ import prof.mo.ed.popularmoviesstageone.Util;
 public class MoviesViewModel extends AndroidViewModel {
 
     private final MediatorLiveData<List<MoviesRoomEntity>> mObservableMovies;
-    private final MediatorLiveData<List<String>> mObservableMovieExist;
+    private final MediatorLiveData<List<MoviesRoomEntity>> mObservableMovieExist;
 
     public MoviesViewModel(@NonNull Application application) {
         super(application);
@@ -36,16 +36,13 @@ public class MoviesViewModel extends AndroidViewModel {
 
         LiveData<List<MoviesRoomEntity>> MoviesList= ((BasicApp)application).getRepository().LoadAllMovies();
         mObservableMovies.addSource(MoviesList,mObservableMovies::setValue);
-
-
-
     }
 
     String MovieID;
 
     public void setMovieID(String MovieID){
         this.MovieID=MovieID;
-        LiveData<List<String>> MovieIDExist=((BasicApp)Util.application).getRepository().isMoveExist(MovieID);
+        LiveData<List<MoviesRoomEntity>> MovieIDExist=((BasicApp)Util.application).getRepository().isMoveExist(MovieID);
         mObservableMovieExist.addSource(MovieIDExist,mObservableMovieExist::setValue);
 
     }
@@ -57,7 +54,8 @@ public class MoviesViewModel extends AndroidViewModel {
         return mObservableMovies;
     }
 
-    public LiveData<List<String>> getIsMovieFavorite(){
+    public LiveData<List<MoviesRoomEntity>> getIsMovieFavorite(){
 
         return mObservableMovieExist;}
+
 }

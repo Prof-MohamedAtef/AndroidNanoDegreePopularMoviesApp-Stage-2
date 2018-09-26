@@ -7,37 +7,32 @@ import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
 import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 
 /**
- * Created by Prof-Mohamed Atef on 9/22/2018.
+ * Created by Prof-Mohamed Atef on 9/23/2018.
  */
 
-public class InsertAsyncTask extends AsyncTask<Void,Void,Boolean> {
+public class DeleteAsyncTask  extends AsyncTask<Void,Void,Boolean> {
 
-    private MoviesRoomEntity moviesRoomEntity;
+    private String MovieID;
     private AppDatabase appDatabase;
-    private String FragType;
 
-
-
-    public InsertAsyncTask(AppDatabase appDatabase, MoviesRoomEntity moviesRoomEntity, OnTaskCompletes onTaskCompletes) {
+    public DeleteAsyncTask(AppDatabase appDatabase, String movieID, OnTaskCompletes onTaskCompletes) {
         super();
         this.appDatabase=appDatabase;
-        this.moviesRoomEntity = moviesRoomEntity;
+        this.MovieID= movieID;
         this.onTaskCompletes=onTaskCompletes;
-        this.FragType=FragType;
     }
 
-    public InsertAsyncTask(OnTaskCompletes onTaskCompletes) {
+    public DeleteAsyncTask(OnTaskCompletes onTaskCompletes) {
         this.onTaskCompletes=onTaskCompletes;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        return IsInserted();
+        return IsDeleted();
     }
 
-    @NonNull
-    private Boolean IsInserted() {
-        long x= appDatabase.movieDao().InsertMovie(moviesRoomEntity);
+    private Boolean IsDeleted() {
+        int x=appDatabase.movieDao().deleteByMovieId(MovieID);
         if (x>0){
             return true;
         }else{
@@ -50,12 +45,12 @@ public class InsertAsyncTask extends AsyncTask<Void,Void,Boolean> {
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         if (aBoolean!= null) {
-            onTaskCompletes.onInsertTaskCompletes(aBoolean,FragType);
+            onTaskCompletes.onDeleteTaskCompletes(aBoolean);
         }
     }
 
     public interface OnTaskCompletes
     {
-        void onInsertTaskCompletes(boolean x, String FragType);
+        void onDeleteTaskCompletes(boolean x);
     }
 }

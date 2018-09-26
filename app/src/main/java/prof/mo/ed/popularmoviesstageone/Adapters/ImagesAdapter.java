@@ -25,10 +25,12 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
     private List<MoviesRoomEntity> feedItemList;
 
     public transient Context mContext;
+    private String FragType;
 
-    public ImagesAdapter(Context context, List<MoviesRoomEntity> feedItemList) {
+    public ImagesAdapter(Context context, List<MoviesRoomEntity> feedItemList, String FragType) {
         this.feedItemList=feedItemList;
         this.mContext= context;
+        this.FragType=FragType;
     }
 
     @Override
@@ -51,6 +53,7 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHOlder
             public void onClick(View view) {
                 if (feedItemList != null) {
                     ((MainFragment.MovieDataListener) mContext).onMovieFragmentSelected(feedItemList.get(i));
+
                 }
             }
         });

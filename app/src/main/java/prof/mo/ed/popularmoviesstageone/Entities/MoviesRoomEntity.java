@@ -55,6 +55,7 @@ public class MoviesRoomEntity implements Serializable {
     @ColumnInfo(name = "VoteAverage")
     public String VoteAverage;
 
+
     @Nullable
     @ColumnInfo(name = "IS_Favourite")
     public Integer IS_Favourite;
@@ -135,8 +136,22 @@ public class MoviesRoomEntity implements Serializable {
         this.PosterPath =  PosterPath;
     }
 
+    @Ignore
     public String IMAGES_BASE_Url = "http://image.tmdb.org/t/p/w185";
 
+    public void setIS_Favourite(@Nullable Integer IS_Favourite) {
+        this.IS_Favourite = IS_Favourite;
+    }
+
+    @Ignore
+    public String getIMAGES_BASE_Url() {
+        return IMAGES_BASE_Url;
+    }
+
+    @Ignore
+    public void setIMAGES_BASE_Url(String IMAGES_BASE_Url) {
+        this.IMAGES_BASE_Url = IMAGES_BASE_Url;
+    }
 
     @Ignore
     public MoviesRoomEntity(String PosterPath, String MovieID, String MovieTitle, String MovieOverView, String ReleaseDate, String Popularity, String VoteAverage) {

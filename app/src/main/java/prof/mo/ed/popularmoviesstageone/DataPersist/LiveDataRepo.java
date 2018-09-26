@@ -47,8 +47,8 @@ public class LiveDataRepo {
         return mDatabase.movieDao().getAllMoviesData();
     }
 
-    public LiveData<List<String>> isMoveExist(String movieID){
-        LiveData<List<String>> xList=mDatabase.movieDao().getIsFavoriteMovieID();
+    public LiveData<List<MoviesRoomEntity>> isMoveExist(String movieID){
+        LiveData<List<MoviesRoomEntity>> xList=mDatabase.movieDao().getAllMoviesData();
         return xList;
     }
 }

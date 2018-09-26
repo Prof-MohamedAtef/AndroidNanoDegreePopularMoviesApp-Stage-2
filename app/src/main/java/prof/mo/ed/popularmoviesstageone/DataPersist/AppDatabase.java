@@ -30,35 +30,25 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private final MutableLiveData<Boolean> mIsDatabaseCreated = new MutableLiveData<>();
 
-    public static AppDatabase getAppDatabase(Context context) {
+    public static AppDatabase getAppDatabase(Context context, final AppExecutors executors) {
         if (INSTANCE == null) {
-            INSTANCE =
-                    Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "Movies-database")
-                            // allow queries on the main thread.
-                            // Don't do this on a real app! See PersistenceBasicSample for an example.
-                            .allowMainThreadQueries()
-                            .build();
+            try {
+                INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, DATABASE_NAME)
+                        // allow queries on the main thread.
+                        // Don't do this on a real app! See PersistenceBasicSample for an example.
+                        .allowMainThreadQueries()
+                        .build();
+                // Add a delay to simulate a long-running operation
+//                addDelay();
+                // Generate the data for pre-population
+                AppDatabase database = AppDatabase.getInstance(context, executors);
+                // notify that the database was created and it's ready to be used
+                database.setDatabaseCreated();
+            }catch (Exception e){
+                return null;
+            }
         }
         return INSTANCE;
-    }
-
-    private static AppDatabase buildDatabase(final Context appContext,
-                                             final AppExecutors executors) {
-        return Room.databaseBuilder(appContext, AppDatabase.class, DATABASE_NAME)
-                .addCallback(new Callback() {
-                    @Override
-                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                        super.onCreate(db);
-                        executors.diskIO().execute(() -> {
-                            // Add a delay to simulate a long-running operation
-                            addDelay();
-                            // Generate the data for pre-population
-                            AppDatabase database = AppDatabase.getInstance(appContext, executors);
-                            // notify that the database was created and it's ready to be used
-                            database.setDatabaseCreated();
-                        });
-                    }
-                }).build();
     }
 
     public static void destroyInstance() {
@@ -94,7 +84,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE== null) {
-                    INSTANCE= buildDatabase(context.getApplicationContext(), executors);
+                    INSTANCE= getAppDatabase(context.getApplicationContext(), executors);
                     INSTANCE.updateDatabaseCreated(context.getApplicationContext());
                 }
             }

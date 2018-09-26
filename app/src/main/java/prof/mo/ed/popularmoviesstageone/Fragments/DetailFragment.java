@@ -1,5 +1,6 @@
 package prof.mo.ed.popularmoviesstageone.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.arch.lifecycle.LifecycleOwner;
@@ -21,29 +22,35 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import prof.mo.ed.popularmoviesstageone.Adapters.TrailersAdapter;
+import prof.mo.ed.popularmoviesstageone.AppExecutors;
 import prof.mo.ed.popularmoviesstageone.BuildConfig;
 import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
 import prof.mo.ed.popularmoviesstageone.DataPersist.Dao.RoomMoviesDao;
+import prof.mo.ed.popularmoviesstageone.GenericAsyncTasks.DeleteAsyncTask;
 import prof.mo.ed.popularmoviesstageone.GenericAsyncTasks.InsertAsyncTask;
 import prof.mo.ed.popularmoviesstageone.GenericAsyncTasks.MoviesAPIAsyncTask;
 import prof.mo.ed.popularmoviesstageone.GenericAsyncTasks.UpdateAsyncTask;
 import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 import prof.mo.ed.popularmoviesstageone.R;
+import prof.mo.ed.popularmoviesstageone.SessionManagement;
+import prof.mo.ed.popularmoviesstageone.Util;
 import prof.mo.ed.popularmoviesstageone.ViewModel.FavoriteMovieViewModelFactory;
 import prof.mo.ed.popularmoviesstageone.ViewModel.CheckMovieIDStatusViewModel;
+import prof.mo.ed.popularmoviesstageone.ViewModel.MoviesViewModel;
 
 /**
  * Created by Prof-Mohamed Atef on 8/8/2018.
  */
 public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTaskCompleted,
         InsertAsyncTask.OnTaskCompletes,
-        UpdateAsyncTask.OnTaskCompletes{
+        DeleteAsyncTask.OnTaskCompletes{
 
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
 
@@ -62,7 +69,11 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
     CheckMovieIDStatusViewModel checkMovieIDStatusViewModel;
     String apiKey;
     AppDatabase database;
-
+    private AppExecutors mAppExecutors;
+    MoviesViewModel moviesViewModel;
+    public static final String KEY_POPULAR = "popular";
+    public static final String KEY_Favorite = "favorite";
+    public static final String KEY_TOP_RATED = "top_rated";
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -85,10 +96,9 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
             Picasso.with(getActivity()).load(movieEntity.getPosterPath()).into(imgPoster);
             movieID = movieEntity.getMovieID();
             ratingBar.setRating(0);
-            factory = new FavoriteMovieViewModelFactory(database, movieID);
-            checkMovieIDStatusViewModel =
-                    ViewModelProviders.of((FragmentActivity) getActivity(), factory).get(CheckMovieIDStatusViewModel.class);
-            getMovieID(checkMovieIDStatusViewModel);
+            moviesViewModel= ViewModelProviders.of((FragmentActivity) getActivity()).get(MoviesViewModel.class);
+            moviesViewModel.setMovieID(movieID);
+            getMovieID(moviesViewModel);
 
             String DefaultUri = getString(R.string.default_uri);
             trailersEndPoint = DefaultUri + "/movie/" + movieID + "/videos?api_key=" + apiKey;
@@ -115,7 +125,7 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
                         TryInsert(database, movieEntity.getMovieID(), movieEntity.getMovieTitle(), movieEntity.getMovieOverView(), movieEntity.getReleaseDate(), movieEntity.getPopularity(), movieEntity.getVoteAverage(), movieEntity.getIS_Favourite(), movieEntity.getPosterPath());
                     } else if (ratingBar.getRating() == 0) {
                         movieEntity.setIS_Favourite(0);
-                        TryUpdate(database, movieEntity.getMovieID(), movieEntity.getIS_Favourite());
+                        TryDelete(database,movieEntity.getMovieID());
                     }
                 }
             }
@@ -131,39 +141,41 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
         });
     }
 
-    private void getMovieID(CheckMovieIDStatusViewModel checkMovieIDStatusViewModel) {
-        checkMovieIDStatusViewModel.getMovie().observe((LifecycleOwner) getActivity(), new Observer<List<String>>() {
+    private void getMovieID(MoviesViewModel moviesViewModel) {
+        moviesViewModel.getIsMovieFavorite().observe((LifecycleOwner) getActivity(), new Observer<List<MoviesRoomEntity>>() {
             @Override
-            public void onChanged(@Nullable List<String> strings) {
-                checkMovieIDStatusViewModel.getMovie().removeObserver(this);
-                if (strings != null) {
-                    String x = null;
-                    for (int i = 0; i < strings.size(); i++) {
-                        x = strings.get(i);
-                        if (movieID.equals(x)){
-                            break;
+            public void onChanged(@Nullable List<MoviesRoomEntity> moviesRoomEntities) {
+                if (moviesRoomEntities != null) {
+                    if (moviesRoomEntities.size()>0){
+                        String x = null;
+                        for (int i = 0; i < moviesRoomEntities.size(); i++) {
+                            x = moviesRoomEntities.get(i).getMovieID();
+                            if (movieID.equals(x)){
+                                break;
+                            }
                         }
-                    }
-                    if (x != null) {
-                        if (x.equals(movieID)) {
-                            ratingBar.setRating(1);
-                        } else if (!x.equals(movieID)) {
+                        if (x != null) {
+                            if (x.equals(movieID)) {
+                                ratingBar.setRating(1);
+                                moviesViewModel.getIsMovieFavorite().removeObserver(this);
+                            } else if (!x.equals(movieID)) {
+                                ratingBar.setRating(0);
+                                moviesViewModel.getIsMovieFavorite().removeObserver(this);
+                            }
+                        } else if (x == null) {
                             ratingBar.setRating(0);
                         }
-                    } else if (x == null) {
-                        ratingBar.setRating(0);
+                    }else if (moviesRoomEntities.size()==0){
                     }
                 }
             }
         });
     }
 
-    private void TryUpdate(AppDatabase db, String video_id_string, int is__favourite) {
-        UpdateAsyncTask updateAsyncTask=new UpdateAsyncTask(db,is__favourite,video_id_string,this);
-        updateAsyncTask.execute();
+    private void TryDelete (AppDatabase database, String MovieID){
+        DeleteAsyncTask deleteAsyncTask=new DeleteAsyncTask(database,MovieID,this);
+        deleteAsyncTask.execute();
     }
-
-
 
     private void TryInsert(AppDatabase db, String video_id_string, String title_string, String overview_string, String release_date_string, String popularity_string, String vote_average, int is__favourite, String poster_path_string) {
 
@@ -182,7 +194,8 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
 
     public void startFetchingReviews() {
         try {
-            MoviesAPIAsyncTask reviewsAsync = new MoviesAPIAsyncTask(KEY_REVIEW, DetailFragment.this);
+
+            MoviesAPIAsyncTask reviewsAsync = new MoviesAPIAsyncTask("",KEY_REVIEW, DetailFragment.this);
             reviewsAsync.execute(reviewsEndPoint);
         } catch (Exception e) {
             Log.v(LOG_TAG, "didn't Execute Reviews");
@@ -193,7 +206,7 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
     public static final String KEY_TRAILER = "trailer";
     public void startFetchingTrailers() {
         try {
-            MoviesAPIAsyncTask fetchTrailers = new MoviesAPIAsyncTask(KEY_TRAILER, DetailFragment.this);
+            MoviesAPIAsyncTask fetchTrailers = new MoviesAPIAsyncTask("",KEY_TRAILER, DetailFragment.this);
             fetchTrailers.execute(trailersEndPoint);
         } catch (Exception e) {
             Log.v(LOG_TAG, "didn't Execute Trailers");
@@ -218,26 +231,31 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
 
 
 
+    SessionManagement sessionManagement;
+    HashMap<String, Integer> user;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         apiKey = BuildConfig.ApiKey;
-        database = new AppDatabase() {
-            @Override
-            public void clearAllTables() {
-            }
-
+        sessionManagement=new SessionManagement(getActivity());
+        database =new AppDatabase() {
             @Override
             public RoomMoviesDao movieDao() {
                 return null;
             }
+
+            @Override
+            public void clearAllTables() {
+
+            }
         };
-        database = AppDatabase.getAppDatabase(getActivity());
+        mAppExecutors = new AppExecutors();
+        database = AppDatabase.getAppDatabase(getActivity(),mAppExecutors);
         helper = new MoviesRoomEntity();
     }
 
     @Override
-    public void onTaskCompleted(String Type, ArrayList<MoviesRoomEntity> result) {
+    public void onTaskCompleted(String Type_1,String Type, ArrayList<MoviesRoomEntity> result) {
         if (result != null && result.size() > 0) {
             if (Type != null) {
                 if (Type.equals(KEY_REVIEW)) {
@@ -247,7 +265,6 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
                             text_author.append(getString(R.string.author_name)+" \n" + mv.getAUTHOR_STRING().toString() + "\n\n" + getString(R.string.review)+" \n" + mv.getCONTENT_STRING().toString() + "\n\n\n**\n\n\n");
                         }
                     }
-
                 } else if (Type.equals(KEY_TRAILER)) {
                     if (getActivity() != null && result.size() > 0) {
                         trailersAdapter = new TrailersAdapter(getActivity(), R.layout.trailer_list_item, result);
@@ -259,18 +276,31 @@ public class DetailFragment extends Fragment implements MoviesAPIAsyncTask.OnTas
     }
 
     @Override
-    public void onInsertTaskCompletes(boolean x) {
+    public void onInsertTaskCompletes(boolean x, String FragType) {
         if (x == true) {
-            Toast.makeText(getActivity(), getString(R.string.addede_to_fav), Toast.LENGTH_LONG).show();
+            if (getActivity()!=null){
+                Toast.makeText(getActivity(), getString(R.string.addede_to_fav), Toast.LENGTH_LONG).show();
+            }
         } else {
-            Toast.makeText(getActivity(), getString(R.string.movie_not_inserted), Toast.LENGTH_LONG).show();
+            if (getActivity()!=null){
+                Toast.makeText(getActivity(), getString(R.string.movie_not_inserted), Toast.LENGTH_LONG).show();
+            }
         }
     }
 
     @Override
-    public void onUpdateTaskCompletes(boolean x) {
-        if (x == true) {
-            Toast.makeText(getActivity(), getString(R.string.removed_from_favs), Toast.LENGTH_LONG).show();
-        }
+    public void onDeleteTaskCompletes(boolean x) {
+      if (x==true){
+          if (getActivity()!=null){
+              Toast.makeText(getActivity(), getString(R.string.removed_from_favs), Toast.LENGTH_LONG).show();
+          }
+      }else if (x=false){
+          if (getActivity()!=null){
+              Toast.makeText(getActivity(), getString(R.string.removed_from_favs), Toast.LENGTH_LONG).show();
+          }
+      }
+    }
+
+    public DetailFragment() {
     }
 }

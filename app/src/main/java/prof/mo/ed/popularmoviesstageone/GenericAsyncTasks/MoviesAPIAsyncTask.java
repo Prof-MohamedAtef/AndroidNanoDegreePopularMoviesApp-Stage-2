@@ -49,6 +49,10 @@ public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<Movie
     private ArrayList<MoviesRoomEntity> list = new ArrayList<MoviesRoomEntity>();
 
     private final String LOG_TAG = MoviesAPIAsyncTask.class.getSimpleName();
+    public static final String KEY_POPULAR = "popular";
+    public static final String KEY_TOP_RATED = "top_rated";
+    public static final String KEY_REVIEW = "review";
+    public static final String KEY_TRAILER = "trailer";
 
     private ArrayList<MoviesRoomEntity> getMovieDataFromJson(String MoviesJsonStr)
             throws JSONException {
@@ -143,15 +147,17 @@ public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<Movie
 
     String s="";
     String Type=null;
+    String Type_1=null;
     private OnTaskCompleted onTaskCompleted;
 
     public MoviesAPIAsyncTask(OnTaskCompleted onTaskCompleted){
         this.onTaskCompleted=onTaskCompleted;
     }
 
-    public MoviesAPIAsyncTask(String str, OnTaskCompleted onTaskCompleted){
+    public MoviesAPIAsyncTask(String Type_1,String str, OnTaskCompleted onTaskCompleted){
         this.onTaskCompleted=onTaskCompleted;
         this.Type=str;
+        this.Type_1=Type_1;
     }
 
     @Override
@@ -210,13 +216,15 @@ public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<Movie
         }
         try {
             if (Type!=null){
-                   if (Type.equals("review")){
+                   if (Type.equals(KEY_REVIEW)){
                        return getReviewsDataFromJson(Movies_images_JsonSTR);
-                   }else if (Type.equals("trailer")){
+                   }else if (Type.equals(KEY_TRAILER)){
                        return getTrailersDataFromJson(Movies_images_JsonSTR);
+                   }else if (Type.equals(KEY_POPULAR)||Type.equals(KEY_TOP_RATED)){
+                       return getMovieDataFromJson(Movies_images_JsonSTR);
                    }
             }else if (Type==null) {
-                return getMovieDataFromJson(Movies_images_JsonSTR);
+                return null;
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "didn't got Movies Data from getJsonData method", e);
@@ -235,11 +243,11 @@ public class MoviesAPIAsyncTask extends AsyncTask <String, Void, ArrayList<Movie
     protected void onPostExecute(ArrayList<MoviesRoomEntity> result) {
         super.onPostExecute(result);
         if (result != null) {
-            onTaskCompleted.onTaskCompleted(Type,result);
+            onTaskCompleted.onTaskCompleted(Type_1,Type,result);
         }
     }
 
     public interface OnTaskCompleted{
-        void onTaskCompleted(String Type,ArrayList<MoviesRoomEntity> result);
+        void onTaskCompleted(String Type_1 ,String Type,ArrayList<MoviesRoomEntity> result);
     }
 }

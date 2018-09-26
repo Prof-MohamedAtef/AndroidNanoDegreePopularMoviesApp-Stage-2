@@ -26,9 +26,12 @@ public interface RoomMoviesDao {
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     LiveData<List<MoviesRoomEntity>> getMovieID(String MovieID);
 
-    @Query("select MovieID from Favourites WHERE IS_Favourite = 1")
-    LiveData<List<String>> getIsFavoriteMovieID();
+    @Query("select * from Favourites WHERE MovieID LIKE :MovieID")
+    LiveData<List<MoviesRoomEntity>> getIsFavoriteMovieID(String MovieID);
 
     @Query("UPDATE Favourites SET IS_Favourite = :IS_Favourite WHERE MovieID LIKE :MovieID")
     int UpdateMovie(int IS_Favourite, String MovieID);
+
+    @Query("DELETE FROM Favourites WHERE MovieID LIKE :MovieID")
+    abstract int deleteByMovieId(String MovieID);
 }

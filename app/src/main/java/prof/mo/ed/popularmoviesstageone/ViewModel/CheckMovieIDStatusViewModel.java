@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel;
 import java.util.List;
 
 import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
+import prof.mo.ed.popularmoviesstageone.Entities.MoviesRoomEntity;
 
 /**
  * Created by Prof-Mohamed Atef on 9/21/2018.
@@ -14,13 +15,13 @@ import prof.mo.ed.popularmoviesstageone.DataPersist.AppDatabase;
 
 public class CheckMovieIDStatusViewModel extends ViewModel{
 
-    private LiveData<List<String>> Movie;
+    private LiveData<List<MoviesRoomEntity>> Movie;
 
-    public LiveData<List<String>> getMovie(){
+    public LiveData<List<MoviesRoomEntity>> getMovie(){
         return Movie;
     }
 
     public CheckMovieIDStatusViewModel(AppDatabase mDatabase, String movieID) {
-        Movie=mDatabase.movieDao().getIsFavoriteMovieID();
+        Movie=mDatabase.movieDao().getIsFavoriteMovieID(movieID);
     }
 }

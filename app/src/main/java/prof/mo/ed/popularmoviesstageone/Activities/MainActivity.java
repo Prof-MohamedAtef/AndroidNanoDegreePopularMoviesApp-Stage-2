@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Movi
         getFragmentManager().beginTransaction()
                 .replace(R.id.panel_one, mainFragment)
                 .commit();
-
         if (panelTwo == null) {
             mTowPanel = false;
         } else {

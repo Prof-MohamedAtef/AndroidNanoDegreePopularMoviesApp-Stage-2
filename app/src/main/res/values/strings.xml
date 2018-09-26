@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">Popular Movies,Stage2</string>
     <string name="pending_connection">Pending Internet Connection</string>
+    <string name="nofavs">No Favorite Movies</string>
     <string name="addede_to_fav">Added to Favorites</string>
     <string name="movie_not_inserted">Movie Not Inserted</string>
     <string name="removed_from_favs">Removed From Favorites</string>
+    <string name="removed_from_favs_failed">Failed to Remove</string>
     <string name="author_name">Author Name :</string>
     <string name="review">Review :</string>
     <string name="no_review">No Reviews</string>
